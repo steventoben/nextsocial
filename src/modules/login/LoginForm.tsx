@@ -16,8 +16,9 @@ import React, {ReactElement, SetStateAction} from "react";
 import styled from "@emotion/styled";
 import {useSubmitForm} from "../../hooks/useSubmitForm";
 import {LoginResponseDTO, useAuthentication} from "../auth/AuthenticationProvider";
-import Router from "next/router";
+import Router, {useRouter} from "next/router";
 import Link from "next/link";
+//import {router} from "next/client";
 
 type Handlers<Model> = {
     [Key in keyof Model]: (newValue: Model[Key]) => void;
@@ -97,7 +98,7 @@ export function LoginForm(props: LoginFormProps) {
     const {handleSubmit, register, formState: {errors, ...formState}} = useForm<LoginFields>();
     const [formResponse, setFormResponse] = React.useState<LoginResponseDTO | null>(null);
     const {handleFetch: submitForm} = useSubmitForm();
-    //const router = useRouter();
+    const router = useRouter();
     const onSubmit: SubmitHandler<LoginFields> = (data) => {
         console.log(data);
         let formData: FormData = new FormData();
@@ -131,7 +132,8 @@ export function LoginForm(props: LoginFormProps) {
         console.log("updated");
         console.log(authenticationManager.userData);
         if(authenticationManager.isAuthenticated()) {
-            Router.push('/feed', '/', {shallow: true}); //redirect to page before being redirected to login
+            router.push('/feed');
+            //Router.push('/feed', '/', {shallow: true}); //redirect to page before being redirected to login
         }
     }, [authenticationManager.userData]);
     return(

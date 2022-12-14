@@ -1,4 +1,4 @@
-import React, {Context, ReactNode} from "react";
+import React, {Context, ReactElement, ReactNode} from "react";
 import {Box, Input, InputGroup, InputLeftElement, useOutsideClick, useUpdateEffect} from "@chakra-ui/react";
 import {useFetchHook} from "../../hooks/useFetchHook";
 import {useDebouncedState} from "../../hooks/useDebouncedState";
@@ -91,7 +91,7 @@ export function SearchProvider(props: SearchProviderProps) {
 interface SearchBarProps {}
 export function SearchBar(props: SearchBarProps) {
     const {} = props;
-    const {inputValue, setInputValue, inputValue$, setInputValue$,searchResults} = React.useContext(SearchContext);
+    const {inputValue, setInputValue, inputValue$, setInputValue$,searchResults,setSearchResults} = React.useContext(SearchContext);
     const [value, setValue] = React.useState<string>('');
     const [isOpen, setIsOpen] = React.useState<boolean>(false);
     const hasResults = React.useMemo(() => searchResults!==null, [searchResults]);
@@ -113,10 +113,16 @@ export function SearchBar(props: SearchBarProps) {
         if(ev.key === 'Enter') {
             console.log(`Searching for ${value}`);
             setIsOpen(false);
+            setSearchResults(null);
             router.push({pathname: '/search', search: `?q=${value}`});
         }
         if(ev.key === 'Escape') {
             setIsOpen(false);
+        }
+    }
+    function handleFocus() {
+        if(searchResults!==null) {
+            setIsOpen(true);
         }
     }
     useOutsideClick({
@@ -127,17 +133,37 @@ export function SearchBar(props: SearchBarProps) {
     })
 
     return(
-        <Box ref={containerRef}>
-            <InputGroup>
+        <Box maxWidth={'32rem'} width={'100%'} ref={containerRef}>
+            <SearchInputGroup>
+                <Input aria-label={'Search for posts, users, and groups'} onFocus={handleFocus} onKeyUp={handleKeyUp} value={value} onChange={handleChange}/>
+            </SearchInputGroup>
+            {/*<InputGroup>
                 <InputLeftElement>
-                    <MdOutlineSearch/>
+                    <SearchIcon/>
                 </InputLeftElement>
                 <Input onKeyUp={handleKeyUp} value={value} onChange={handleChange}/>
-            </InputGroup>
+            </InputGroup>*/}
             <SearchResults searchResults={searchResults} isOpen={isOpen}/>
         </Box>
     );
 }
+const SearchIcon = React.memo(() => {
+    return(
+        <MdOutlineSearch/>
+    );
+});
+SearchIcon.displayName = 'SearchIconForInput';
+const SearchInputGroup = React.memo((props: {children: ReactNode}) => {
+    return(
+        <InputGroup>
+            <InputLeftElement>
+                <SearchIcon/>
+            </InputLeftElement>
+            {props.children}
+        </InputGroup>
+    );
+});
+SearchInputGroup.displayName = 'SearchInputGroup';
 interface SearchResultsPreviewProps {
     searchResults: SearchResultsDto;
     isOpen: boolean;

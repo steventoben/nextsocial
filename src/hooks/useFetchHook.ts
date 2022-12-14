@@ -110,7 +110,7 @@ export function useFetchHook<T>(fetchUrl: string, fetchMethod: HttpMethod = Http
         method: fetchMethod,
         //body: JSON.stringify(fetchBody)
     });
-    const [responseObject, setResponseObject] = React.useState<ResponseObject<any>>({
+    const [responseObject, setResponseObject] = React.useState<ResponseObject<T>>({
         raw: emptyResponse,
         data: null
     });
@@ -351,7 +351,7 @@ export function useFetchHook<T>(fetchUrl: string, fetchMethod: HttpMethod = Http
             //const rawResponse = await fetch(request);
             const rawResponse = await fetch(requestWithProvidedQuery);
             response = await handleResponse(rawResponse);
-            outgoingRequests.set(request.url, response as Promise<ResponseObject<any>>);
+            outgoingRequests.set(request.url, response as Promise<ResponseObject<T>>);
             requestSent.current = true;
             console.log(response);
         } catch (error) {

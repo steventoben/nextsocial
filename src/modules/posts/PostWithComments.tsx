@@ -180,6 +180,7 @@ export function FormattedPostWithComments(props: FormattedPostWithCommentsProps)
     const [isFavorited, setIsFavorited] = React.useState<boolean>(post.isFavorited||false);
     const {getCurrentUser} = useAuthentication();
     const {favoritePost, unfavoritePost} = useApi();
+    const timeSince = React.useMemo(() => getTimeSince(post.createdAt), [post.createdAt]);
     async function toggleFavorite() {
         const action = isFavorited ? unfavoritePost : favoritePost;
         const success = await action(post.slug);
@@ -215,7 +216,7 @@ export function FormattedPostWithComments(props: FormattedPostWithCommentsProps)
                         <Avatar size={'md'} name={post.author.username} src={post.author.avatar?.url || undefined}/>
                         <VStack spacing={0} alignItems={'start'}>
                             <Text fontWeight={600}>{post.author.username}</Text>
-                            <Text fontSize={'0.75rem'}>{post.createdAt}</Text>
+                            <Text fontSize={'0.75rem'}>{timeSince}</Text>
                         </VStack>
                     </HStack>
                 </Link>
@@ -260,12 +261,13 @@ export function FormattedPostWithComments(props: FormattedPostWithCommentsProps)
             <Flex alignItems={'center'} justifyContent={'space-between'}>
             <HStack marginLeft={'-0.5rem'}>
                 <Box display={'inline-flex'} alignItems={'center'} justifyContent={'flex-start'} position={'relative'}>
-                    <IconButton bg={'white'} onClick={toggleFavorite} aria-label={''} icon={isFavorited ? <AiFillLike/> : <AiOutlineLike/>}/>
+                    <IconButton bg={'white'} onClick={toggleFavorite} aria-label={isFavorited?'Unfavorite this post':'Favorite this post'} icon={isFavorited ? <AiFillLike/> : <AiOutlineLike/>}/>
                     <Text zIndex={'1'} marginLeft={'-0.25rem'} fontSize={'0.875rem'} fontWeight={400}>{post.favoriteCount + Number(isFavorited)}</Text>
                 </Box>
                 <Link href={`/post/${post.slug}`}>
+                {/*<Link href={`/post/${post.slug}__${post.id}`}>*/}
                     <Box display={'inline-flex'} alignItems={'center'} justifyContent={'flex-start'} position={'relative'}>
-                        <IconButton zIndex={'0'} bg={'white'} aria-label={''} icon={<AiOutlineComment/>}/>
+                        <IconButton zIndex={'0'} bg={'white'} aria-label={'Show comments for this post'} icon={<AiOutlineComment/>}/>
                         <Text zIndex={'1'} marginLeft={'-0.25rem'} fontSize={'0.875rem'} fontWeight={400}>{post.comments.length}</Text>
                     </Box>
                 </Link>
@@ -316,7 +318,7 @@ function ImageDisplay(props: ImageDisplayProps) {
     } = props;
     return(
         images.length===0 ? null :
-            images.length===1 ? <Box position={'relative'}><Image borderRadius={'0.5rem'} overflow={'hidden'} src={images[0]} alt={''}/><GradientOverlay/></Box> :
+            images.length===1 ? <Box position={'relative'}><Image width={'100%'} borderRadius={'0.5rem'} overflow={'hidden'} src={images[0]} alt={''}/><GradientOverlay/></Box> :
                 images.length===3 ? <ImageGrid imageSet={images}/> :
                     <ImageGallery>
                         {images.map(image => {
@@ -350,7 +352,7 @@ function FormattedPostContextMenu( props: OverflowMenuProps ) {
         <>
             <Menu>
                 <MenuButton>
-                    <IconButton aria-label={''} icon={<MdMoreVert/>} bg={'white'}/>
+                    <IconButton aria-label={'Show extra actions for this post'} icon={<MdMoreVert/>} bg={'white'}/>
                 </MenuButton>
                 <MenuList>
                     <MenuItem>

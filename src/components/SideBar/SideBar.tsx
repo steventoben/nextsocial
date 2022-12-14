@@ -57,7 +57,7 @@ export function SideBar(props: SideBarProps) {
                 avatar: getCurrentUser().avatar
             }}/>
             <Spacer height={'2rem'}/>
-            <NavBar navLinks={links}/>
+            <NavBarLinks navLinks={links}/>
             <Spacer height={'2rem'}/>
             <TopNavLinks topLinks={groups}/>
         </Box>
@@ -98,22 +98,47 @@ export function NavBar(props: NavBarProps) {
             <List>
                 {navLinks.map((link) => {
                     return(
-                        <ListItem sx={link.link===location.pathname?{backgroundColor: 'rgba(55,163,240,0.1)', borderLeft: '4px solid rgba(55,163,240,1)'}:{}}  padding={'0.5rem 1rem'} _hover={{backgroundColor: 'gray.100'}} key={link.label}>
-                            <Link aria-current={link.link===location.pathname?'page':'false'} href={link.link}>
-                                <Flex alignItems={'center'}>
-                                    <Box marginRight={'1rem'}>{link.icon}</Box>
-                                    <Text fontFamily={'Helvetica Neue'} fontSize={'1.125rem'}>
-                                        {link.label}
-                                    </Text>
-                                </Flex>
-                            </Link>
-                        </ListItem>
+                        <NavListLink key={link.link} link={link}/>
                     );
                 })}
             </List>
         </Box>
     );
 }
+const NavBarLinks = React.memo(({navLinks}: NavBarProps) => {
+    return(
+        <Box padding={'0.5rem'} as={'nav'}>
+            <List>
+                {navLinks.map((link) => {
+                    return(
+                        <NavListLink key={link.link} link={link}/>
+                    );
+                })}
+            </List>
+        </Box>
+    );
+});
+NavBarLinks.displayName = 'NavBarLinks';
+
+interface NavListLinkProps {
+    link: NavLinkType;
+}
+const NavListLink = React.memo(({link}: NavListLinkProps) => {
+    return(
+        <ListItem sx={link.link===location.pathname?{backgroundColor: 'rgba(55,163,240,0.1)', borderLeft: '4px solid rgba(55,163,240,1)'}:{}}  padding={'0.5rem 1rem'} _hover={{backgroundColor: 'gray.100'}} key={link.label}>
+            <Link aria-current={link.link===location.pathname?'page':'false'} href={link.link}>
+                <Flex alignItems={'center'}>
+                    <Box marginRight={'1rem'}>{link.icon}</Box>
+                    <Text fontFamily={'Helvetica Neue'} fontSize={'1.125rem'}>
+                        {link.label}
+                    </Text>
+                </Flex>
+            </Link>
+        </ListItem>
+    );
+});
+NavListLink.displayName = 'NavListLink';
+
 const StyledBase = styled(Box)``;
 
 const sampleTopLinks: NavLinkType[] = [

@@ -43,7 +43,7 @@ export function PostsFeed(props: PostsFeedProps) {
             <VStack alignItems={'stretch'} spacing={'2rem'}>
                 {posts.map((post) => {
                     return(
-                        <FormattedPostWithComments post={post} key={post.slug}/>
+                        <FormattedPostWithComments post={post} key={`${post.slug}__${post.id}`}/>
                     );
                 })}
             </VStack>

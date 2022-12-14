@@ -38,7 +38,7 @@ export function parseDateString(dateString: string) {
     };
     return dateTime;
 }
-export function getTimeSince(dateString: string) {
+export function getTimeSince(dateString: string): string {
     const dateTime: DateTime = parseDateString(dateString);
     const nowDateTime: DateTime = parseDateString(new Date().toISOString());
     console.log(dateTime);
@@ -63,11 +63,18 @@ export function getTimeSince(dateString: string) {
     console.log(value)
     if(value / YEAR_IN_MS >= 1) {
         value /= YEAR_IN_MS;
+        const yearsElapsed = value;//value / YEAR_IN_MS;
+        console.log(yearsElapsed);
+        console.log(`${Math.floor(yearsElapsed)} year${Math.floor(yearsElapsed)>1?'s':''} ago`);
+        return `${Math.floor(yearsElapsed)} year${Math.floor(yearsElapsed)>1?'s':''} ago`;
     }
     console.log('year:')
     console.log(value)
     if(value / MONTH_IN_MS >= 1) {
         value /= MONTH_IN_MS;
+        const monthsElapsed = value;//value / YEAR_IN_MS;
+        console.log(monthsElapsed);
+        return `${Math.floor(monthsElapsed)} month${Math.floor(monthsElapsed)>1?'s':''} ago`;
     }
     console.log('month:')
     console.log(value)
@@ -76,4 +83,5 @@ export function getTimeSince(dateString: string) {
     }
     console.log('day:')
     console.log(value)
+    return '';
 }

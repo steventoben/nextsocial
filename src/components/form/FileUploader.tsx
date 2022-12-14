@@ -1,7 +1,7 @@
 import {
     AspectRatio,
     Box,
-    Button, CloseButton, Flex, IconButton, Image, Input,
+    Button, CloseButton, Flex, Heading, IconButton, Image, Input,
     Modal, ModalBody,
     ModalCloseButton,
     ModalContent, ModalFooter,
@@ -32,7 +32,7 @@ export function FileUploader(props: FileUploaderProps) {
     //const [files, setFiles] = React.useState<File[]>([]);
     return(
         <FileUploadContext.Provider value={{files, setFiles}}>
-            <Button leftIcon={<MdImage/>} onClick={onOpen}>Upload media</Button>
+            <Button leftIcon={<MdImage/>} onClick={onOpen}>{`Upload media${Boolean(files.length)?` (${files.length})`:''}`}</Button>
             <FileUploadModal isOpen={isOpen} onClose={onClose}/>
         </FileUploadContext.Provider>
     );
@@ -105,6 +105,9 @@ export const FileUploadModal = React.forwardRef((props: ModalProps, ref) =>  {
     function handleFileButtonClick() {
         fileRef.current?.click();
     }
+    function handleFinishButtonClick() {
+        onClose();
+    }
     function toArray() {
 
     }
@@ -138,11 +141,12 @@ export const FileUploadModal = React.forwardRef((props: ModalProps, ref) =>  {
 
     const dragAndDropArea = (
         <>
-        <Flex onDrop={handleDrop} onDragOver={handleDragOver} flexDirection={'column'} alignItems={'center'} padding={'1rem'} border={'2px dashed'} borderColor={'blue.400'} bg={'rgba(190,227,248,0.5)'}>
-            <Text textTransform={'capitalize'} fontWeight={600}>Drop files here</Text>
+        <Flex onDrop={handleDrop} onDragOver={handleDragOver} flexDirection={'column'} alignItems={'center'} padding={'1rem'} border={'2px dashed'} borderColor={'blue.400'} bg={'rgba(190,227,248,0.2)'}>
+            <UploadCLoudIcon/>
+            <Text fontWeight={600}>Drop & Drop files here</Text>
             <Text>or</Text>
-            <Box marginTop={'0.5rem'}>
-                <Button colorScheme={'primary'} variant={'outline'} onClick={handleFileButtonClick}>Add files</Button>
+            <Box>
+                <Button lineHeight={'1'} verticalAlign={'baseline'} height={'auto'} color={'#0468c6'} colorScheme={'primary'} variant={'unstyled'} onClick={handleFileButtonClick}>browse</Button>
                 <input onChange={handleFileAdd} ref={fileRef} hidden={true} multiple={true} type={'file'}/>
             </Box>
         </Flex>
@@ -160,29 +164,28 @@ export const FileUploadModal = React.forwardRef((props: ModalProps, ref) =>  {
                 <ModalCloseButton/>
                 <ModalBody>
                     <Flex flexDirection={'column'}>
-                        <Box marginBottom={'4rem'}>
+                        <Box marginBottom={'2rem'}>
                             {dragAndDropArea}
                         </Box>
-                        <Box width={'100%'}>
-                            {images.map((image:File) => {
-                                return(
-                                    <FileItem image={image} handleRemoveFile={handleRemoveFile} key={image.name}/>
-                                );
-                                /*return(
-                                    <Flex key={image.name}>
-                                        <AspectRatio ratio={1 / 1} width={'100%'} maxWidth={'8rem'}>
-                                            <Image alt={image.name} src={URL.createObjectURL(image)}/>
-                                        </AspectRatio>
-                                        <CloseButton onClick={() => handleRemoveFile(image)}/>
-                                        <Text>{image.name} {image.size}</Text>
+                        <Box>
+                            <Text fontSize={'1rem'} fontWeight={500} mb={'0.5rem'}>Files: </Text>
+                            <Box width={'100%'}>
+                                {Boolean(images.length) ?
+                                    images.map((image:File) => {
+                                    return(
+                                        <FileItem image={image} handleRemoveFile={handleRemoveFile} key={image.name}/>
+                                    );
+                                    }) :
+                                    <Flex justifyContent={'center'}>
+                                        <Text>No files selected.</Text>
                                     </Flex>
-                                );*/
-                            })}
+                                }
+                            </Box>
                         </Box>
                     </Flex>
                 </ModalBody>
                 <ModalFooter>
-                    <Button onClick={handleFileButtonClick}>Add files</Button>
+                    <Button colorScheme={'brand'} onClick={handleFinishButtonClick}>Upload</Button>
                     {/*<input onChange={handleFileAdd} ref={fileRef} hidden={true} multiple={true} type={'file'}/>*/}
                 </ModalFooter>
             </ModalContent>
@@ -191,8 +194,14 @@ export const FileUploadModal = React.forwardRef((props: ModalProps, ref) =>  {
 });
 FileUploadModal.displayName = 'FileUploadModal';
 
-
-const ratio: DimensionsListType = {
+function UploadCLoudIcon() {
+    return(
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path d="M16 16h-3v5h-2v-5h-3l4-4 4 4zm3.479-5.908c-.212-3.951-3.473-7.092-7.479-7.092s-7.267 3.141-7.479 7.092c-2.57.463-4.521 2.706-4.521 5.408 0 3.037 2.463 5.5 5.5 5.5h3.5v-2h-3.5c-1.93 0-3.5-1.57-3.5-3.5 0-2.797 2.479-3.833 4.433-3.72-.167-4.218 2.208-6.78 5.567-6.78 3.453 0 5.891 2.797 5.567 6.78 1.745-.046 4.433.751 4.433 3.72 0 1.93-1.57 3.5-3.5 3.5h-3.5v2h3.5c3.037 0 5.5-2.463 5.5-5.5 0-2.702-1.951-4.945-4.521-5.408z"/>
+        </svg>
+    );
+}
+const aRs: DimensionsListType = {
     "1:1": { width: 1, height: 1 },
     "1:2": { width: 1, height: 2 },
     "2:3": { width: 2, height: 3 },
@@ -205,8 +214,28 @@ const ratios = {
 
 };
 function calculateSizing(dimensions: DimensionsType) {
+    let match: number = Number.MAX_VALUE;
+    let matchingKey = '';
+    let matchingRatio: DimensionsType = {width: 0, height: 0};
     const ratio = dimensions.height / dimensions.width;
-    const isSquare = dimensions.height === dimensions.width;
+    console.log(`Match: ${match}`);
+    console.log(`Ratio: ${ratio}`);
+    Object.entries(aRs).forEach(([k, v], index) => {
+        const ar = v.height / v.width;
+        const diff = Math.abs(ratio - ar);
+        console.log(`ar: ${ar}`);
+        console.log(`diff: ${diff}`);
+        if(diff < match) {
+            match = diff;
+            matchingKey = k;
+            matchingRatio = aRs[k];
+        }
+        console.log(`new lowest diff ${diff}`)
+    });
+    console.log(`Final match: ${match}`);
+
+    return matchingRatio;
+    /*const isSquare = dimensions.height === dimensions.width;
     if(isSquare) {
         //1:1
     }
@@ -217,7 +246,7 @@ function calculateSizing(dimensions: DimensionsType) {
         //4160,6240
         //4160,6240
 
-    }
+    }*/
 }
 
 interface FileProps {
@@ -238,10 +267,17 @@ function FileItem(props: FileProps) {
         }
     }, []);*/
     const [imageDimensions, setImageDimensions] = React.useState<DimensionsType>({width:0,height:0});
-    function handleLoaded(ev: React.SyntheticEvent<HTMLImageElement>) {
+    const aspectRatio = React.useMemo(() => (imageDimensions.height/imageDimensions.width), [imageDimensions]);
+    const aspectRatioClamped = React.useMemo(() => calculateSizing(imageDimensions), [imageDimensions]);
+    const handleLoaded = (ev: React.SyntheticEvent<HTMLImageElement>) => {
+        console.log('loading');
         setImageDimensions({width: ev.currentTarget.naturalWidth, height: ev.currentTarget.naturalHeight});
         URL.revokeObjectURL(ev.currentTarget.src);
     }
+    const url = React.useMemo(() => URL.createObjectURL(image), [image]);
+    /*React.useEffect(() => {
+        calculateSizing(imageDimensions);
+    }, [imageDimensions]);*/
     const fileSize = React.useMemo(() => {
         const numberOfBytes = image.size;
         const units = [
@@ -271,12 +307,15 @@ function FileItem(props: FileProps) {
     return(
         <Flex height={'5rem'} alignItems={'center'} margin={'0.5rem 0'} bg={'gray.50'}>
             <AspectRatio ratio={1 / 1} width={'100%'} maxWidth={'5rem'}>
-                <Image onLoad={handleLoaded} alt={image.name} src={URL.createObjectURL(image)}/>
+                <Image onLoad={handleLoaded} alt={image.name} src={url}/>
             </AspectRatio>
             <Box flexGrow={'1'} marginLeft={'1rem'}>
-                <Text>{image.type}</Text>
-                <Text>{fileSize}</Text>
-                <Text>{imageDimensions.width} x {imageDimensions.height}</Text>
+                <Text as={'span'}>{image.type} </Text>
+                <Text as={'span'}>({fileSize})</Text>
+                <br/>
+                <Text fontSize={'0.875rem'} as={'span'}>{imageDimensions.width} x {imageDimensions.height} </Text>
+                {/*<Text>{aspectRatio}</Text>*/}
+                <Text as={'span'}>({aspectRatioClamped.width}:{aspectRatioClamped.height})</Text>
             </Box>
             <IconButton aria-label={'remove file'}
                         icon={<BiTrash/>}

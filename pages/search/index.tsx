@@ -40,9 +40,9 @@ const SearchPage: NextPage<SearchPageProps> = (props: SearchPageProps) => {
                 <Box>
                     <Tabs>
                         <TabList>
-                            <Tab>Posts</Tab>
-                            <Tab>Users</Tab>
-                            <Tab>Groups</Tab>
+                            <Tab as={'a'} href={'#posts'}>Posts</Tab>
+                            <Tab as={'a'} href={'#users'}>Users</Tab>
+                            <Tab as={'a'} href={'#groups'}>Groups</Tab>
                         </TabList>
                         <TabPanels>
                             <TabPanel>

@@ -57,6 +57,7 @@ const UserPage: NextPage<UserPageProps> = (props: UserPageProps) => {
                     <Button /* paddingRight={'1.25rem'}*/
                         leftIcon={isFollowing ? <FiMinus/> : <MdAdd/>}
                         borderRadius={'0.25rem'}
+                        colorScheme={'brand'}
                         variant={isFollowing ? 'outline' : 'solid'}
                         onClick={isFollowing ? () => unfollow() : () => follow()}
                     >

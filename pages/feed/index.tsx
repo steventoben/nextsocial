@@ -9,6 +9,7 @@ import {createPostWithCommentsSamples} from "../../src/data/samples";
 import {useFetchHook} from "../../src/hooks/useFetchHook";
 import {ServerCommentDto} from "../../src/models/commentDto";
 import {SortBySelect, sortOptions, SortSelectDivider} from "../../src/components/select/Select";
+import {InfiniteScroll} from "../../src/modules/paging/InfiniteScroll";
 
 interface FeedPageProps {
     posts: PostServerResponseDto[]//PostWithCommentsDto[];
@@ -20,6 +21,8 @@ const FeedPage: NextPage<FeedPageProps> = (props: FeedPageProps) => {
     } = props;
     return(
         <AppLayout sidebarWidth={'16rem'}>
+            <title>Your feed</title>
+            {/*<InfiniteScroll/>*/}
             <Box maxWidth={'80ch'} margin={'0 auto'} /*width={'max-content'} margin={'0 auto'} maxWidth={'100%'}*/>
                 <CreatePostWidget/>
                 {/*<SortBySelect options={sortOptions}/>*/}

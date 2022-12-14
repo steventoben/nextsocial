@@ -3,6 +3,31 @@ import {Avatar, Box, Button, Flex, Image, Tab, TabList, TabPanel, TabPanels, Tab
 import React from "react";
 import Link from "next/link";
 import {getAvatar} from "../../../pages/user/[username]";
+import {getTimeSince} from "../../utils/dateUtils";
+
+
+interface AnchorTabProps {
+    hash: string;
+    label: string;
+}
+const AnchorTab = ({hash, label}: AnchorTabProps) => {
+    return(
+        <Link href={{hash: ''}}>
+
+        </Link>
+    );
+};
+interface AnchorTabsListProps {
+    hash: string;
+    label: string;
+}
+const AnchorTabsList = ({hash, label}: AnchorTabsListProps) => {
+    return(
+        <TabList>
+            <AnchorTab hash={''} label={''}/>
+        </TabList>
+    );
+};
 
 interface SearchResultsProps {
     searchResults: SearchResultsDto;
@@ -18,7 +43,7 @@ export function SearchResults(props: SearchResultsProps) {
 
     return(
         isOpen ?
-            <Box position={'absolute'} bg={'white'} boxShadow={'2px 2px 2px 2px rgba(25,25,25,0.2)'}>
+            <Box maxWidth={'32rem'} width={'inherit'} position={'absolute'} bg={'white'} boxShadow={'2px 2px 2px 2px rgba(25,25,25,0.2)'}>
             <Tabs onChange={(index) => setActiveTabIndex(index)} size={'sm'}>
                 <TabList fontSize={'2xs'}>
                     <Tab>Posts {searchResults.posts.length}</Tab>
@@ -31,12 +56,17 @@ export function SearchResults(props: SearchResultsProps) {
                             {searchResults.posts.slice(0,5).map((post) => {
                                 return(
                                     <SearchResultsItem
-                                        item={{
+                                        /*item={{
                                             image: post.attachments.length?post.attachments[0].url:'',
                                             title: post.content,
                                             subtext: post.createdAt,
                                             link: `/post/${post.slug}`
                                         }}
+                                        key={post.id}*/
+                                        image={post.attachments.length?post.attachments[0].url:''}
+                                        title={post.content}
+                                        subtext={getTimeSince(post.createdAt)}
+                                        link={`/post/${post.slug}`}
                                         key={post.id}
                                     />
                                 );
@@ -48,12 +78,17 @@ export function SearchResults(props: SearchResultsProps) {
                             {searchResults.users.slice(0,5).map((user) => {
                                 return(
                                     <SearchResultsItem
-                                        item={{
+                                        /*item={{
                                             image: getAvatar(user.avatar) || '',
                                             title: user.username,
                                             subtext: '',
                                             link: `/user/${user.username}`
                                         }}
+                                        key={user.id}*/
+                                        image={getAvatar(user.avatar) || ''}
+                                        title={user.username}
+                                        subtext={''}
+                                        link={`/user/${user.username}`}
                                         key={user.id}
                                     />
                                 );
@@ -65,13 +100,11 @@ export function SearchResults(props: SearchResultsProps) {
                             {searchResults.communities.slice(0, 5).map((group) => {
                                 return(
                                     <SearchResultsItem
-                                        item={{
-                                            image: getAvatar(group.photo||null) || '',
-                                            title: group.name,
-                                            subtext: group.about,
-                                            link: `/community/${group.name}`
-                                        }}
-                                        key={group.id}
+                                            image={getAvatar(group.photo||null) || ''}
+                                            title={group.name}
+                                            subtext={group.about}
+                                            link={`/community/${group.name}`}
+                                            key={group.id}
                                     />
                                 );
                             })}
@@ -79,16 +112,22 @@ export function SearchResults(props: SearchResultsProps) {
                     </TabPanel>
                 </TabPanels>
             </Tabs>
-                <Box>
-                    <Link href={`/search/${String(Reflect.ownKeys(searchResults).at(activeTabIndex))}`}>
-                        {`View all results`}
-                    </Link>
-                </Box>
+                <ViewAllResultsButton link={`/search/${String(Reflect.ownKeys(searchResults).at(activeTabIndex))}`}/>
         </Box>
             :
             null
     );
 }
+const ViewAllResultsButton = React.memo((props: {link: string}) => {
+    return(
+        <Box>
+            <Link href={props.link}>
+                {`View all results`}
+            </Link>
+        </Box>
+    );
+});
+ViewAllResultsButton.displayName = 'ViewAllResultsButton';
 interface ItemDto {
     image: string;
     title: string;
@@ -98,7 +137,26 @@ interface ItemDto {
 interface SearchResultsItemProps {
     item: ItemDto;
 }
-export function SearchResultsItem(props: SearchResultsItemProps) {
+export const SearchResultsItem = React.memo((props: {image: string; title: string; subtext: string; link: string;}) => {
+    /*const {
+        item
+    } = props;*/
+
+    return (
+        <Link href={props.link}>
+            <Flex>
+                <Avatar objectFit={'cover'} borderRadius={'0'} name={props.title} src={props.image} size={'sm'}/>
+                {/*<Image sx={{aspectRatio: '1 / 1'}} src={props.image} alt={''}/>*/}
+                <Box>
+                    <Text>{props.title}</Text>
+                    <Text>{props.subtext}</Text>
+                </Box>
+            </Flex>
+        </Link>
+    );
+})
+/*
+export const SearchResultsItem = React.memo((props: SearchResultsItemProps) => {
     const {
         item
     } = props;
@@ -114,31 +172,26 @@ export function SearchResultsItem(props: SearchResultsItemProps) {
             </Flex>
         </Link>
     );
-}
+})*/
+SearchResultsItem.displayName = 'SearchResultsItem';
 
-interface SearchItem {
-    link: string;
-}
-
-interface SearchResultItemProps {
-    item: ItemDto;
-}
-export function SearchResultItem(props: SearchResultItemProps) {
-    const {
+export const SearchResultsUserItem = React.memo((props: {image: string; title: string; subtext: string; link: string;}) => {
+    /*const {
         item
-    } = props;
+    } = props;*/
 
     return (
-        <Link href={item.link}>
+        <Link href={props.link}>
             <Flex>
-                <Image src={item.image}/>
-                <Avatar name={item.title} src={item.image} size={'sm'}/>
+                <Avatar name={props.title} src={props.image} size={'sm'}/>
                 <Box>
-                    <Text>{item.title}</Text>
-                    <Text>{item.subtext}</Text>
+                    <Text>{props.title}</Text>
+                    <Text>{props.subtext}</Text>
                 </Box>
             </Flex>
         </Link>
     );
-}
+})
+SearchResultsUserItem.displayName = 'SearchResultsUserItem';
+const SearchResultItem = React.memo(SearchResultsItem);
 
